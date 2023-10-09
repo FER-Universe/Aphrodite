@@ -1,8 +1,15 @@
 # Aphrodite
 A repository of emotional bot system
 
+## Get Started
 
-# Branch Management
+- None
+
+## Something
+
+- None
+
+## Branch Management
 
 깃헙 관리 방식
 
@@ -28,6 +35,6 @@ git push origin --delete feat/conversation_improvement
 git branch -D feat/conversation_improvement
 ```
 
-# References
+## References
 [meta-gpt](https://github.com/geekan/MetaGPT)
 [agents](https://github.com/aiwaves-cn/agents#web-demos)
