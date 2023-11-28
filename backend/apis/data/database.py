@@ -5,7 +5,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from configs.config import settings
 
-# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://daeha:difwkrka1201@127.0.0.1/test"
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{settings.DB_ID}:{settings.DB_PW}@{settings.DB_ADDRESS}/{settings.DB_NAME}"
 
 engine = create_engine(
