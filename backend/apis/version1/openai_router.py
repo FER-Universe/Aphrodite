@@ -1,11 +1,11 @@
-from fastapi import APIRouter
-import openai
 import json
+import time
+
+import openai
 import requests
-
 from configs.config import settings
+from fastapi import APIRouter
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
-
 
 router = APIRouter(prefix="/api/openai")
 

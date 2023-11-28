@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CHAR
-from sqlalchemy.orm import relationship
-
 from apis.data.database import Base
+from sqlalchemy import CHAR, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
 
 
 class Question(Base):

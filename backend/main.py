@@ -1,8 +1,6 @@
+from apis.version1 import openai_router, question_router
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-
-from apis.version1 import question_router
-from apis.version1 import openai_router
 
 app = FastAPI()
 
