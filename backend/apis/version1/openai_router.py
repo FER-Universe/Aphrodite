@@ -1,11 +1,14 @@
 import json
 import time
+from threading import Semaphore
 
 import openai
 import requests
 from configs.config import settings
 from fastapi import APIRouter
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
+
+sem = Semaphore(3)
 
 router = APIRouter(prefix="/api/openai")
 
@@ -22,21 +25,26 @@ async def translate_by_gpt_router(req: GptRequestSch):
 
 
 async def translate_by_openai(req: GptRequestSch):
-    data = {
-        "model": "gpt-3.5-turbo",
-        # "messages": [{"role": "user", "content": req.title_nm + "한국어로 100자 이내로 설명해줘"}],
-        "messages": [{"role": "user", "content": req.title_nm + "한국어로 100자 이내로 설명해줘"}],
-        "temperature": 0.3,
-        "max_tokens": 150,
-    }
-    response = requests.post(
-        "https://api.openai.com/v1/chat/completions",
-        headers=settings.OPENAI_HEADERS,
-        json=data,
-    )
-    output = json.loads(response.text)
-    print("output: ", output)
-    openai_result = output["choices"][0]["message"]["content"]
+    with sem:
+        data = {
+            "model": "gpt-3.5-turbo",
+            # "messages": [{"role": "user", "content": req.title_nm + "한국어로 100자 이내로 설명해줘"}],
+            "messages": [
+                {"role": "user", "content": req.title_nm + "한국어로 100자 이내로 말해 줘."}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 512,
+        }
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=settings.OPENAI_HEADERS,
+            json=data,
+        )
+        output = json.loads(response.text)
+        print("output: ", output)
+        openai_result = output["choices"][0]["message"]["content"]
+
+        time.sleep(1)
 
     return openai_result
 
