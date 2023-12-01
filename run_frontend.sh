@@ -1,0 +1,1 @@
+PYTHONPATH=. streamlit run frontend/main.py
