@@ -20,5 +20,10 @@ class Settings:
     DB_ADDRESS: str = config_secret_common["db_address"]
     DB_NAME: str = config_secret_common["db_name"]
 
+    IP_ADDRESS: str = config_secret_common["ip_address"]
+    PORT: str = config_secret_common["port"]
+    BASIC_API: str = config_secret_common["basic_api"]
+    ADVANCED_API: str = config_secret_common["advanced_api"]
+
 
 settings = Settings()
