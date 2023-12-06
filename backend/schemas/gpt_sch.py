@@ -18,11 +18,13 @@ class GptRequestSch(BaseModel):
 # 결과를 응답하는 경우
 class GptResponseSch(BaseModel):
     openai_msg_ctt: str
+    emotion: str
 
     class Config:
         orm_mode = True
         schema_extra = {
             "example": {
                 "openai_msg_ctt": "openai 메시지 내용 입니다",
+                "emotion": "default 감정 상태 입니다",
             }
         }

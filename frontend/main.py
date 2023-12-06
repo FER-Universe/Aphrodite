@@ -14,7 +14,7 @@ def main():
         st.session_state.messages = []
 
     if prompt := st.chat_input("입력 프롬프트"):
-        response = request_writer_api(prompt)
+        response, emotion = request_writer_api(prompt)
 
         with st.chat_message("ai", avatar="🤖"):
             st.session_state.messages.append(
@@ -26,7 +26,7 @@ def main():
             st.session_state.messages.append(
                 {
                     "role": "🤖",
-                    "content": response,
+                    "content": response + "(지금 기분(VA): " + emotion + ")",
                 }
             )
 
