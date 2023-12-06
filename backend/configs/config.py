@@ -24,6 +24,7 @@ class Settings:
     PORT: str = config_secret_common["port"]
     BASIC_API: str = config_secret_common["basic_api"]
     ADVANCED_API: str = config_secret_common["advanced_api"]
+    EMOTION_API: str = config_secret_common["emotion_api"]
 
 
 settings = Settings()
