@@ -15,9 +15,12 @@ def request_writer_api(prompt: Optional[str] = None):
         )["message"]
     else:
         session_request = {"title_nm": prompt}
-        return ast.literal_eval(
+        result = ast.literal_eval(
             requests.post(
-                f"{settings.IP_ADDRESS}:{settings.PORT}/{settings.ADVANCED_API}",
+                f"{settings.IP_ADDRESS}:{settings.PORT}/{settings.EMOTION_API}",
                 json=session_request,
             ).text
-        )["openai_msg_ctt"]
+        )
+        response = result["openai_msg_ctt"]
+        emotion = result["emotion"]
+        return response, emotion
