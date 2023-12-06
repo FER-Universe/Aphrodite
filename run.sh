@@ -1,1 +1,0 @@
-PYTHONPAH=. python examples/test.py
