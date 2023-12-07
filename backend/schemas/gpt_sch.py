@@ -28,3 +28,16 @@ class GptResponseSch(BaseModel):
                 "emotion": "default 감정 상태 입니다",
             }
         }
+
+
+# 결과를 응답하는 경우
+class GptResponseSch_msgonly(BaseModel):
+    openai_msg_ctt: str
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "openai_msg_ctt": "openai 메시지 내용 입니다",
+            }
+        }

@@ -6,14 +6,14 @@ import openai
 import requests
 from configs.config import settings
 from fastapi import APIRouter
-from schemas.gpt_sch import GptRequestSch, GptResponseSch
+from schemas.gpt_sch import GptRequestSch, GptResponseSch, GptResponseSch_msgonly
 
 sem = Semaphore(3)
 
 router = APIRouter(prefix="/api/openai")
 
 
-@router.post("/translate/by/gpt", response_model=GptResponseSch)
+@router.post("/translate/by/gpt", response_model=GptResponseSch_msgonly)
 async def translate_by_gpt_router(req: GptRequestSch):
     openai_result = await translate_by_openai(req)
     # bard_result = await translate_by_bard(req)
