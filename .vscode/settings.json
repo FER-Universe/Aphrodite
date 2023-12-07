@@ -2,6 +2,10 @@
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
+    "isort.args": [
+        "--settings-file",
+        ".isort.cfg"
+    ],
     "python.formatting.provider": "none",
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,

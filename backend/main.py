@@ -1,6 +1,9 @@
 from apis.version1 import emotion_router, openai_router, question_router
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+import uvicorn
+from apis.version1 import question_router
+from apis.version1 import openai_router
 
 app = FastAPI()
 
@@ -22,7 +25,12 @@ def hello():
     return {"message": "Hello, everyone! :)"}
 
 
-app.include_router(question_router.router)
+@app.get("/dohee")
+def dohee():
+    return {"message": "Hello, my name is Dohee Kang..."}
+
+
+# app.include_router(question_router.router)
 app.include_router(openai_router.router)
 app.include_router(emotion_router.router)
 
