@@ -9,19 +9,32 @@ A repository of emotional bot system
 
 - None
 
-## Branch Management
+## Github Management
 
-깃헙 관리 방식
+### Branch Management
+- branch name
+  - `feat`: Add features to existing documents
+  - `doc`: Add documents
+  - `hotfix`: Need hotfix some bugs
+  - `release`: Complete release version
 
-브랜치 관리
+### Management command
+- Before preceeding with the task
+  - `git fetch`: Update local with origin/main
+  - `git branch [-l / -r / -a]`: Lookup local/remote/all branches
+  - `git pull origin <branch>`:  Get remote branch named "<branch>"
+  - `git checkout origin/main`: Main remote branch
+  - `git checkout -b <local branch> --track origin/main`: make branch named "<local branch>" with traking the main remote branch 
 
-- 이름명
-  - `feat`: 기능이 추가될 때
-  - `doc`: 문서가 추가될 때
-  - `hotfix`: 급하게 오류가 수정되어야 할 때
-  - `release`: 버전 완성될 때
- 
-- 방식
+- After preceeding with the task
+  - `git commit -m <message>`: Commit the local modifications with <message>
+  - `git push origin <local branch>`: Push the local branch to origin 
+
+- Additional
+  `git stash`: Save the current modifications to cache
+  `git stash apply`: Reload the modifications from cache
+
+
 ```bash
 git fetch
 git checkout -b feat/conversation_improvement --track origin/main
