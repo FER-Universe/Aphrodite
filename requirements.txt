@@ -13,9 +13,9 @@ pretrainedmodels==0.7.4
 regex==2023.6.3
 sqlalchemy==2.0.19
 starlette==0.27.0
-streamlit==1.25.0
+streamlit==1.24.0
 torch==2.0.1+cu117
-torchaudio==2.0.2+cu117
+torchaudio==2.0.2+cu1174
 torchvision==0.15.2+cu117
 tqdm==4.65.0
 uvicorn==0.22.0
