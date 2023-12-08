@@ -25,6 +25,9 @@ class Settings:
     BASIC_API: str = config_secret_common["basic_api"]
     ADVANCED_API: str = config_secret_common["advanced_api"]
     EMOTION_API: str = config_secret_common["emotion_api"]
+    IS_PREFIX: bool = False
+    IS_EMOTION: bool = True  # False
+    IS_DEFAULT_PATH: bool = False
 
 
 settings = Settings()
