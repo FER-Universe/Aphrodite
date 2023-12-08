@@ -1,8 +1,6 @@
-# demo=fast-api > schemas > gpt_sch.py 파일 생성
 from pydantic import BaseModel
 
 
-# 요청시
 class GptRequestSch(BaseModel):
     title_nm: str
 
@@ -15,7 +13,6 @@ class GptRequestSch(BaseModel):
         }
 
 
-# 결과를 응답하는 경우
 class GptResponseSch(BaseModel):
     openai_msg_ctt: str
     emotion: str
@@ -30,7 +27,6 @@ class GptResponseSch(BaseModel):
         }
 
 
-# 결과를 응답하는 경우
 class GptResponseSch_msgonly(BaseModel):
     openai_msg_ctt: str
 
