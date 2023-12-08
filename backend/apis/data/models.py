@@ -1,6 +1,8 @@
-from apis.data.database import Base
 from sqlalchemy import CHAR, Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, relationship
+
+Base = declarative_base()
 
 
 class Question(Base):

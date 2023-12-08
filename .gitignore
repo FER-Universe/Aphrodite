@@ -1,4 +1,7 @@
 __pycache__/
+.vscode/
+assets/
+.database/
 .DS_Store
 
 .config_secret/
