@@ -1,1 +1,1 @@
-cd backend; PYTHONPATH=. uvicorn main:app --reload
+PYTHONPATH=. python backend/main.py
