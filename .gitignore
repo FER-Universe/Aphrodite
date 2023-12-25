@@ -5,3 +5,7 @@ assets/
 .DS_Store
 
 .config_secret/
+interfaces/
+examples/
+
+*.sh

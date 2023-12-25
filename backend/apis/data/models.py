@@ -24,6 +24,14 @@ class Answer(Base):
     question = relationship("Question", backref="answers")
 
 
+class DialogueSession(Base):
+    __tablename__ = "dialogue_session"
+
+    session_id = Column(String, primary_key=True)
+    dialogue = Column(String, nullable=False)
+    current_time = Column(DateTime, nullable=False)
+
+
 class Employee(Base):
     __tablename__ = "employee"
 
