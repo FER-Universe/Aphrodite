@@ -6,7 +6,7 @@ import openai
 import requests
 from fastapi import APIRouter
 
-from apis.data.database import add_message_to_db
+from apis.data.database import add_message_to_database
 from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch, GptResponseSch_msgonly
 
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/api/openai")
 async def translate_by_gpt_router(req: GptRequestSch):
     openai_result = await translate_by_openai(req)
 
-    add_message_to_db(openai_result)
+    add_message_to_database(openai_result)
 
     return {
         "openai_msg_ctt": openai_result,

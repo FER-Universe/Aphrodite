@@ -7,9 +7,10 @@ import clip
 import openai
 import requests
 import torch
-from configs.config import settings
 from fastapi import APIRouter
 from PIL import Image
+
+from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
 from utils.fer_util import nn_output
 
@@ -21,9 +22,9 @@ def normalize_feature(input_tensor: torch.Tensor):
 def set_models():
     encoder, regressor, header = nn_output()
 
-    encoder.load_state_dict(torch.load("weights/enc2.t7"), strict=False)
-    regressor.load_state_dict(torch.load("weights/reg2.t7"), strict=False)
-    header.load_state_dict(torch.load("weights/header2.t7"), strict=False)
+    encoder.load_state_dict(torch.load("backend/weights/enc2.t7"), strict=False)
+    regressor.load_state_dict(torch.load("backend/weights/reg2.t7"), strict=False)
+    header.load_state_dict(torch.load("backend/weights/header2.t7"), strict=False)
 
     encoder.eval()
     regressor.eval()
