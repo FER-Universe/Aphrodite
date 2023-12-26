@@ -7,5 +7,6 @@ assets/
 .config_secret/
 interfaces/
 examples/
+imgs/
 
 *.sh
