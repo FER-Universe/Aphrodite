@@ -12,7 +12,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
 
 import torch
 from aphrodite.action import Action
-from aphrodite.util import MODEL_CONFIG
+from aphrodite.util import MODEL_CONFIG, calculate_num_tokens, load_lora_weights
 from diffusers import (
     AutoPipelineForText2Image,
     DiffusionPipeline,
@@ -32,6 +32,8 @@ class GreatDraw(Action):
 
         self._model_name = model_name
         self._model_config = model_config
+        self._max_token_length = model_config["max_token_length"]
+        self._device = model_config["device"]
 
     def _resize_text_encoder(self) -> None:
         if self._model_config["clip_skip"] > 1:
@@ -40,32 +42,40 @@ class GreatDraw(Action):
                 subfolder="text_encoder",
                 num_hidden_layers=12 - (self._model_config["clip_skip"] - 1),
                 torch_dtype=torch.float16,
-            ).to(
-                "cpu"
-            )  # TODO: change device option
-            self._model_config["pipe_opt"]["text_encoder"] = text_encoder
+            ).to(self._device)
+            self._model_config["sdxl-turbo"]["pipe_opt"]["text_encoder"] = text_encoder
 
-    def _get_pipe(self) -> StableDiffusionPipeline | StableDiffusionXLPipeline:
+    def _get_pipe(
+        self, use_lora_weights: bool = True
+    ) -> StableDiffusionPipeline | StableDiffusionXLPipeline:
         self._resize_text_encoder()
 
         if self._model_config[self._model_name]["type"] == "name":
             pipe = StableDiffusionXLPipeline.from_single_file(
                 self._model_config[self._model_name]["name"],
-                **self._model_config["pipe_opt"],
+                **self._model_config[self._model_name]["pipe_opt"],
             )
         elif self._model_config[self._model_name]["type"] == "path":
             pipe = AutoPipelineForText2Image.from_pretrained(
                 self._model_config[self._model_name]["path"],
-                **self._model_config["pipe_opt"],
+                **self._model_config[self._model_name]["pipe_opt"],
             )
         else:
             raise TypeError(
                 f"Invalid model type {self._model_config[self._model_name]['type']}"
             )
+        print("[INFO] Loaded SD model.")
+
+        if use_lora_weights:
+            pipe = load_lora_weights(
+                pipe, self._model_config[self._model_name]["lora_path"], self._device
+            )
+            print("[INFO] Loaded LoRa weights.")
 
         if torch.__version__ > "2.0.0" and platform.system() != "Windows":
             pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
         pipe.scheduler = DPMSolverSinglestepScheduler.from_config(pipe.scheduler.config)
+        print(f"[INFO] Loaded scheduler {pipe.scheduler}")
         return pipe
 
     def _get_refiner(
@@ -75,26 +85,9 @@ class GreatDraw(Action):
             self._model_config["sdxl-refiner"]["path"],
             text_encoder_2=pipe.text_encoder_2,
             vae=pipe.vae,
-            **self._model_config["pipe_opt"],
+            **self._model_config[self._model_name]["pipe_opt"],
         )
         return refiner
-
-    def _generate_image(
-        self, pipe, prompt: str, negative_prompt: str, refine_img: bool = False
-    ) -> PIL:
-        image = pipe(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            **self._model_config["inference_opt"],
-        ).images[0]
-
-        if refine_img:
-            refiner = self._get_refiner(pipe)
-            image = self._refine_image(refiner, image, prompt)
-
-        gc.collect()
-        torch.cuda.empty_cache()
-        return image
 
     def _refine_image(
         self,
@@ -110,6 +103,39 @@ class GreatDraw(Action):
             high_noise_frac=high_noise_frac,
             image=image,
         ).images[0]
+
+    def __generate(
+        self,
+        pipe: StableDiffusionPipeline | StableDiffusionXLPipeline,
+        prompt: str,
+        negative_prompt: str,
+    ):
+        image = pipe(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            generator=torch.Generator(device=self._device).manual_seed(
+                self._model_config["manual_seed"]
+            ),
+            **self._model_config[self._model_name]["inference_opt"],
+        ).images[0]
+        return image
+
+    def _generate_image(
+        self,
+        pipe: StableDiffusionPipeline | StableDiffusionXLPipeline,
+        prompt: str,
+        negative_prompt: str,
+        refine_img: bool = False,
+    ) -> PIL:
+        image = self.__generate(pipe, prompt, negative_prompt)
+
+        if refine_img:
+            refiner = self._get_refiner(pipe)
+            image = self._refine_image(refiner, image, prompt)
+
+        gc.collect()
+        torch.cuda.empty_cache()
+        return image
 
     def save_images(self, image: PIL, save_path: str = "./imgs") -> None:
         # for Decoding: from PIL import Image; foo = Image.open(BytesIO(base64.b64decode(image_b64.split(",")[-1])))
@@ -132,7 +158,7 @@ class GreatDraw(Action):
         prompt: str,
         negative_prompt: str,
     ) -> PIL:
-        pipe = self._get_pipe()
+        pipe = self._get_pipe(use_lora_weights=False)
         image = self._generate_image(pipe, prompt, negative_prompt)
         self.save_images(image)
         return image
