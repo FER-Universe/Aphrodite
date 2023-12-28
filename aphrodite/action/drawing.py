@@ -26,7 +26,7 @@ from diffusers.pipelines.stable_diffusion_xl.pipeline_stable_diffusion_xl_img2im
 from transformers import CLIPTextModel
 
 
-class GreatDraw(Action):
+class Drawing(Action):
     def __init__(self, model_name: str, model_config: Dict[str, Dict]) -> None:
         super().__init__()
 
@@ -89,7 +89,7 @@ class GreatDraw(Action):
         )
         return refiner
 
-    def _refine_image(
+    def __refine(
         self,
         refiner: StableDiffusionXLImg2ImgPipeline,
         image: PIL,
@@ -120,7 +120,7 @@ class GreatDraw(Action):
         ).images[0]
         return image
 
-    def _generate_image(
+    def _generate_and_refine_image(
         self,
         pipe: StableDiffusionPipeline | StableDiffusionXLPipeline,
         prompt: str,
@@ -131,7 +131,7 @@ class GreatDraw(Action):
 
         if refine_img:
             refiner = self._get_refiner(pipe)
-            image = self._refine_image(refiner, image, prompt)
+            image = self.__refine(refiner, image, prompt)
 
         gc.collect()
         torch.cuda.empty_cache()
@@ -159,7 +159,7 @@ class GreatDraw(Action):
         negative_prompt: str,
     ) -> PIL:
         pipe = self._get_pipe(use_lora_weights=False)
-        image = self._generate_image(pipe, prompt, negative_prompt)
+        image = self._generate_and_refine_image(pipe, prompt, negative_prompt)
         self.save_images(image)
         return image
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     prompt = ""
     negative_prompt = ""
 
-    draw = GreatDraw(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
+    draw = Drawing(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
 
     image = draw.generate_images(
         prompt=prompt,
