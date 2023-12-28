@@ -26,7 +26,7 @@ from diffusers.pipelines.stable_diffusion_xl.pipeline_stable_diffusion_xl_img2im
 from transformers import CLIPTextModel
 
 
-class GreatDraw(Action):
+class Drawing(Action):
     def __init__(self, model_name: str, model_config: Dict[str, Dict]) -> None:
         super().__init__()
 
@@ -165,10 +165,10 @@ class GreatDraw(Action):
 
 
 if __name__ == "__main__":
-    prompt = "(masterpiece, best quality), female twenty-something, taut, east asian, chestnut eyes, deviated septum nose, u-shaped jaw, symmetrical eyes, dark auburn undercut hair, sandals, high heel pose, striking a pose in high heels, enhancing leg length and adding a touch of sophistication, misty lighting, soft, misty light in hongkong street, busy"
-    negative_prompt = "(low quality, worst quality:1.4),"
+    prompt = ""
+    negative_prompt = ""
 
-    draw = GreatDraw(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
+    draw = Drawing(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
 
     image = draw.generate_images(
         prompt=prompt,
