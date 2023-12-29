@@ -21,9 +21,14 @@ Base = declarative_base()
 def connect_db():
     engine = sqlalchemy.create_engine(
         SQLALCHEMY_DATABASE_URL,
-        json_serializer=lambda x: json.dumps(x, ensure_ascii=False, default=str),
+        json_serializer=lambda x: json.dumps(
+            x, ensure_ascii=False, default=str
+        ),  # 옵션, 없어도 됨
     )
-    connection = engine.connect()
+    try:
+        connection = engine.connect()
+    except ConnectionError as e:
+        print(f"{e}")
     return connection
 
 
@@ -37,6 +42,25 @@ def add_message_to_database(message: str):
                 current_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             )
         )
+        session.commit()
+
+
+def delete_message_by_session_id(session_id: str = None):
+    connection = connect_db()
+    with Session(connection) as session:
+        session.query(DialogueSession).filter(
+            DialogueSession.session_id == session_id
+        ).delete()
+        session.commit()
+
+
+def delete_message_by_current_time(current_time: datetime = None):
+    connection = connect_db()
+
+    with Session(connection) as session:
+        session.query(DialogueSession).filter(
+            DialogueSession.current_time < current_time
+        ).delete()
         session.commit()
 
 
