@@ -21,4 +21,4 @@ tqdm==4.65.0
 uvicorn==0.22.0
 ujson==5.7.0
 git+https://github.com/openai/CLIP.git
-pymysql
+pymysql==1.4.6

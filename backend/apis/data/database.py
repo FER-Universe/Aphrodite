@@ -19,12 +19,7 @@ Base = declarative_base()
 
 
 def connect_db():
-    engine = sqlalchemy.create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        json_serializer=lambda x: json.dumps(
-            x, ensure_ascii=False, default=str
-        ),  # 옵션, 없어도 됨
-    )
+    engine = sqlalchemy.create_engine(SQLALCHEMY_DATABASE_URL)
     try:
         connection = engine.connect()
     except ConnectionError as e:
