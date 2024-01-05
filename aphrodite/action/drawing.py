@@ -12,7 +12,7 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
 
 import torch
 from aphrodite.action import Action
-from aphrodite.util import MODEL_CONFIG, calculate_num_tokens, load_lora_weights
+from aphrodite.util import MODEL_CONFIG
 from diffusers import (
     AutoPipelineForText2Image,
     DiffusionPipeline,
@@ -45,8 +45,8 @@ class Drawing(Action):
             ).to(self._device)
             self._model_config["sdxl-turbo"]["pipe_opt"]["text_encoder"] = text_encoder
 
-    def _get_pipe(
-        self, use_lora_weights: bool = True
+    def get_pipe(
+        self, use_lora_weights: bool = False
     ) -> StableDiffusionPipeline | StableDiffusionXLPipeline:
         self._resize_text_encoder()
 
@@ -67,8 +67,9 @@ class Drawing(Action):
         print("[INFO] Loaded SD model.")
 
         if use_lora_weights:
-            pipe = load_lora_weights(
-                pipe, self._model_config[self._model_name]["lora_path"], self._device
+            pipe.load_lora_weights(self._model_config[self._model_name]["lora_path"])
+            print(
+                f"[INFO] Lora weights: {self._model_config[self._model_name]['lora_path'].split('/')[-1].split('.')[0]}"
             )
             print("[INFO] Loaded LoRa weights.")
 
@@ -137,7 +138,9 @@ class Drawing(Action):
         torch.cuda.empty_cache()
         return image
 
-    def save_images(self, image: PIL, save_path: str = "./imgs") -> None:
+    def save_images(
+        self, image: PIL, prompt: str, negative_prompt: str, save_path: str = "./imgs"
+    ) -> None:
         # for Decoding: from PIL import Image; foo = Image.open(BytesIO(base64.b64decode(image_b64.split(",")[-1])))
         # save the image string encoded by base64
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -145,7 +148,7 @@ class Drawing(Action):
         buffered = BytesIO()
         image.save(buffered, format="JPEG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        image_b64 = f"data:image/jpeg;base64,{img_str}"
+        image_b64 = f"data:image/jpeg;{prompt};{negative_prompt};base64,{img_str}"
         with open(save_path + f"/texts/image_b64_{timestamp}.txt", "w") as text_file:
             text_file.write(image_b64)
 
@@ -155,23 +158,27 @@ class Drawing(Action):
 
     def generate_images(
         self,
+        pipe: StableDiffusionXLPipeline,
         prompt: str,
         negative_prompt: str,
     ) -> PIL:
-        pipe = self._get_pipe(use_lora_weights=False)
         image = self._generate_and_refine_image(pipe, prompt, negative_prompt)
-        self.save_images(image)
+        self.save_images(image, prompt, negative_prompt)
         return image
 
 
 if __name__ == "__main__":
-    prompt = ""
-    negative_prompt = ""
-
     draw = Drawing(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
+    pipe = draw.get_pipe(use_lora_weights=False)
 
-    image = draw.generate_images(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-    )
-    print("finished to draw image!!!")
+    for i in range(len(emotion_list)):
+        prompt = ""
+        negative_prompt = ""
+
+        image = draw.generate_images(
+            pipe=pipe,
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+        )
+
+    print("[INFO] finished to draw image!!!")
