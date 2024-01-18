@@ -9,6 +9,10 @@ from apis.data.database import (
     query_info_to_database,
     delete_message_by_current_time,
     delete_message_by_session_id,
+    # Add by dohee kang
+    add_message_to_database_with_userid,
+    add_user_info,
+    manipulate_with_user_id,
 )
 from apis.data.models import Employee
 
@@ -47,3 +51,27 @@ def query_db():
 @router.get("/simple_query")
 async def root():
     return {"message": "Who are you?"}
+
+
+# Add by dohee
+@router.get("/add_message_with_userid")
+def add_db(message: str, user_id: int):
+    add_message_to_database_with_userid(message=message, user_id=user_id)
+    return {"message": "finished to add info to database!"}
+
+
+@router.get(
+    "/add_userinfo", description="add info ordered by: user_id, name, age, career"
+)
+def add_db(user_id: int, name: str, age: int, career: str):
+    add_user_info(user_id=user_id, name=name, age=age, career=career)
+    return {"message": "finished to add info to database!"}
+
+
+@router.get(
+    "/manipulate_with_user_id",
+    description="mode; 1: search current message 2. delete current message 3. modify current message",
+)
+def add_db(user_id: int, mode: int, message: str = None):
+    message = manipulate_with_user_id(user_id=user_id, mode=mode, message=message)
+    return message
