@@ -10,13 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-# Modified by dohee from: from apis.data.models import DialogueSession, Employee
-from apis.data.models import (
-    DialogueSession,
-    Employee,
-    DialogueSession_with_userid,
-    UserInfo,
-)
+# Modified by dohee from: from apis.data.models import Dialogue, Employee
+from apis.data.models import Dialogue, DialogueUserID, Employee, UserInfo
 from configs.config import settings
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{settings.DB_ID}:{settings.DB_PW}@{settings.DB_ADDRESS}/{settings.DB_NAME}"
@@ -37,7 +32,7 @@ def add_message_to_database(message: str):
     connection = connect_db()
     with Session(connection) as session:
         session.add(
-            DialogueSession(
+            Dialogue(
                 session_id=uuid.uuid4(),
                 dialogue=message,
                 current_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -49,9 +44,7 @@ def add_message_to_database(message: str):
 def delete_message_by_session_id(session_id: str = None):
     connection = connect_db()
     with Session(connection) as session:
-        session.query(DialogueSession).filter(
-            DialogueSession.session_id == session_id
-        ).delete()
+        session.query(Dialogue).filter(Dialogue.session_id == session_id).delete()
         session.commit()
 
 
@@ -59,9 +52,7 @@ def delete_message_by_current_time(current_time: datetime = None):
     connection = connect_db()
 
     with Session(connection) as session:
-        session.query(DialogueSession).filter(
-            DialogueSession.current_time < current_time
-        ).delete()
+        session.query(Dialogue).filter(Dialogue.current_time < current_time).delete()
         session.commit()
 
 
@@ -97,12 +88,11 @@ def query_info_to_database(table_name: str, filter: Optional[dict] = None):
     return results
 
 
-# Add by dohee
-def add_message_to_database_with_userid(message: str, user_id: int):
+def add_message_to_database_with_user_id(message: str, user_id: int):
     connection = connect_db()
     with Session(connection) as session:
         session.add(
-            DialogueSession_with_userid(
+            DialogueUserID(
                 user_id=user_id,
                 session_id=uuid.uuid4(),
                 dialogue=message,
@@ -119,33 +109,17 @@ def add_user_info(user_id: int, name: str, age: int, career: str = "Empty"):
         session.commit()
 
 
-def manipulate_with_user_id(user_id: int, mode: int, message: str = None):
+def find_user_id(user_id: int, mode: int, message: str = None):
     connection = connect_db()
     if mode == 1:
         with Session(connection) as session:
-            # 해당 user의 가장 최근 메세지 조회
             try:
-                print(
-                    session.query(UserInfo.name, DialogueSession_with_userid.dialogue)
-                    .join(  # UserInfo에서 이름을, DialogSession에서 dialog를 쿼리함
-                        DialogueSession_with_userid
-                    )
-                    .filter(UserInfo.user_id == user_id)
-                )
                 result = (
-                    session.query(
-                        UserInfo.name, DialogueSession_with_userid.dialogue
-                    )  # UserInfo에서 이름을, DialogSession에서 dialog를 쿼리함
-                    .join(
-                        DialogueSession_with_userid
-                    )  # DialogSession을 기준으로 Userinfo의 이름, 메세지, 그리고 userid 정보가 들어간 새로운 테이블 생성
-                    .filter(
-                        UserInfo.user_id == user_id
-                    )  # 테이블 생성 시, user_id가 전달된 인자와 동일한 경우들만 추출
-                    .order_by(
-                        DialogueSession_with_userid.current_time.desc()
-                    )  # 메세지 생성 시간을 기준으로 내림차순
-                    .first()  # 가장 첫 번째 메세지(가장 최근 메세지) 도출
+                    session.query(UserInfo.name, DialogueUserID.dialogue)
+                    .join(DialogueUserID)
+                    .filter(UserInfo.user_id == user_id)
+                    .order_by(DialogueUserID.current_time.desc())
+                    .first()
                 )
             except TypeError:
                 result = None
@@ -153,6 +127,6 @@ def manipulate_with_user_id(user_id: int, mode: int, message: str = None):
         message = (
             f"user_name: {result[0]}, current message: {result[1]}"
             if result
-            else "해당 user id에 해당하는 사용자 정보를 찾을 수 없습니다."
+            else "User information corresponding to that user ID could not be found."
         )
         return message

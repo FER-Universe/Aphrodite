@@ -24,8 +24,8 @@ class Answer(Base):
     question = relationship("Question", backref="answers")
 
 
-class DialogueSession(Base):
-    __tablename__ = "dialogue_session"
+class Dialogue(Base):
+    __tablename__ = "dialogue"
 
     session_id = Column(String, primary_key=True)
     dialogue_index = Column(Integer, nullable=False)
@@ -48,8 +48,8 @@ class Employee(Base):
     LeaveOrNot = Column(Integer)
 
 
-class DialogueSession_with_userid(Base):
-    __tablename__ = "dialogue_with_userid"
+class DialogueUserID(Base):
+    __tablename__ = "dialogue_userid"
 
     session_id = Column(String, primary_key=True)
     dialogue = Column(String, nullable=False)
