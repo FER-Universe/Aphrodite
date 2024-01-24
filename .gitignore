@@ -9,4 +9,8 @@ interfaces/
 examples/
 imgs/
 
-*.sh
+*_test.py
+test/
+
+*.txt
+*.mp3
