@@ -3,7 +3,7 @@ from request import request_writer_api
 
 
 def show_streamlit_title():
-    st.title("Aphrodite")
+    st.title("Aphrodite (chat)")
 
 
 def main():

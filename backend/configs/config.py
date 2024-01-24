@@ -25,9 +25,16 @@ class Settings:
     BASIC_API: str = config_secret_common["basic_api"]
     ADVANCED_API: str = config_secret_common["advanced_api"]
     EMOTION_API: str = config_secret_common["emotion_api"]
-    IS_PREFIX: bool = True
-    IS_EMOTION: bool = False
-    IS_DEFAULT_PATH: bool = True
+
+    TOUCH_API: str = config_secret_common["touch_api"]
+    STT_API: str = config_secret_common["stt_api"]
+    CLIP_MATCHING_API: str = config_secret_common["clip_matching_api"]
+    VA_VALUE_API: str = config_secret_common["va_value_api"]
+    SHOW_ART_API: str = config_secret_common["show_art_api"]
+
+    IS_PREFIX: bool = False  # True
+    IS_EMOTION: bool = True  # False
+    IS_DEFAULT_PATH: bool = False  # True
 
 
 settings = Settings()
