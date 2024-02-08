@@ -15,6 +15,11 @@ from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
 
 
+from deep_translator import GoogleTranslator
+
+translator = GoogleTranslator(source="ko", target="en")
+
+
 class CLIPRequestSch(BaseModel):
     converted_text: str
 
@@ -33,17 +38,27 @@ router = APIRouter(prefix="/api")
 @router.post("/clip_matching")
 async def translate_by_gpt_router(req: CLIPRequestSch):
     device: str = "cuda"
-    face_image_path = glob.glob(
-        "C:/Users/DaehaKim/Desktop/Research/Aphrodite/backend/assets/*"
-    )
+    face_image_path = glob.glob("./backend/assets/*")
 
     # load models
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(device)
     model, preprocess = clip.load("ViT-B/32", device=device)
-
+    """Modified by Dohee Kang 
+    # Before 
     try:
         text = clip.tokenize([req.converted_text]).to(device)
     except RuntimeError:
         text = clip.tokenize([req.converted_text.split(",").split(" ")[-1]]).to(device)
+    """
+    # After
+    try:
+        raw_text = req.converted_text.rstrip(" 굿바이\n")
+        raw_text = translator.translate(text=raw_text)
+        print(f"input text: {raw_text}")
+        text = clip.tokenize([raw_text]).to(device)
+    except RuntimeError:
+        text = clip.tokenize([raw_text.split(",").split(" ")[-1]]).to(device)
 
     with torch.no_grad():
         text_feature = normalize_feature(model.encode_text(text))

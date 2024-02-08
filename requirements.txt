@@ -22,3 +22,10 @@ uvicorn==0.22.0
 ujson==5.7.0
 git+https://github.com/openai/CLIP.git
 pymysql==1.4.6
+
+
+playsound==1.2.2
+SpeechRecognition==3.10.1
+gtts==2.5.1
+pyaudio==0.2.14
+deep-translator==1.11.4
