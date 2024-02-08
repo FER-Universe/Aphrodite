@@ -11,9 +11,9 @@ from gtts import gTTS
 
 
 def speak(text):
+    current_fp = os.getcwd()
     tts = gTTS(text=text, lang="ko")
-    filename = "voice.mp3"
-    tts.save(filename)
+    filename = current_fp + "/voice.mp3"
     playsound.playsound(filename)
 
 
@@ -35,7 +35,7 @@ router = APIRouter(prefix="/api")
 
 
 @router.get("/stt")
-async def convert_string_to_text(is_repeat: bool = True) -> Dict[str, str]:
+async def convert_string_to_text(is_repeat: bool = False) -> Dict[str, str]:
     if os.path.isfile("converted_text.txt"):
         os.remove("converted_text.txt")
 
@@ -46,8 +46,9 @@ async def convert_string_to_text(is_repeat: bool = True) -> Dict[str, str]:
         print(text)
 
         if is_repeat:
+            current_fp = os.getcwd()
             tts = gTTS(text=text, lang="ko")
-            filename = "user_voice.mp3"
+            filename = current_fp + "/user_voice.mp3"
             tts.save(filename)
             playsound.playsound(filename)
 
