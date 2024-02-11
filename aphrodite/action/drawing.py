@@ -166,7 +166,7 @@ class Drawing(DrawingBase):
             pipe = self.get_pipe(use_lora_weights=False)
 
         image = self._generate_and_refine_image(pipe, prompt, negative_prompt)
-        self.save_images(image, prompt, negative_prompt, save_path="")
+        self.save_images(image, prompt, negative_prompt, save_path="<your saving path>")
         return image
 
 
