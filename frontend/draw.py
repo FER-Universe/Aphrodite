@@ -32,7 +32,7 @@ if __name__ == "__main__":
         logger.info(r)
 
     if st.button("Show image"):
-        list_of_files = glob.glob("D:/Research/assets/imgs/pixels/*")
+        list_of_files = glob.glob("<your saving path>/*")
         latest_file = max(list_of_files, key=os.path.getctime)
 
         img = Image.open(latest_file)
