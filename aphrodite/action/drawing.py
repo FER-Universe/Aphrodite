@@ -4,14 +4,14 @@ import os
 import platform
 from datetime import datetime
 from io import BytesIO
-from typing import Dict
+from typing import Dict, Optional
 
 import PIL
 
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
 
 import torch
-from aphrodite.action import Action
+from aphrodite.action import DrawingBase
 from aphrodite.util import MODEL_CONFIG
 from diffusers import (
     AutoPipelineForText2Image,
@@ -26,7 +26,7 @@ from diffusers.pipelines.stable_diffusion_xl.pipeline_stable_diffusion_xl_img2im
 from transformers import CLIPTextModel
 
 
-class Drawing(Action):
+class Drawing(DrawingBase):
     def __init__(self, model_name: str, model_config: Dict[str, Dict]) -> None:
         super().__init__()
 
@@ -158,27 +158,20 @@ class Drawing(Action):
 
     def generate_images(
         self,
-        pipe: StableDiffusionXLPipeline,
         prompt: str,
         negative_prompt: str,
+        pipe: Optional[StableDiffusionXLPipeline] = None,
     ) -> PIL:
+        if pipe is None:
+            pipe = self.get_pipe(use_lora_weights=False)
+
         image = self._generate_and_refine_image(pipe, prompt, negative_prompt)
-        self.save_images(image, prompt, negative_prompt)
+        self.save_images(image, prompt, negative_prompt, save_path="")
         return image
 
 
-if __name__ == "__main__":
+def draw_your_mind(prompt: str) -> None:
+    negative_prompt = "<your negative prompts>"
+
     draw = Drawing(model_name="sdxl-hello-world", model_config=MODEL_CONFIG)
-    pipe = draw.get_pipe(use_lora_weights=False)
-
-    for i in range(len(emotion_list)):
-        prompt = ""
-        negative_prompt = ""
-
-        image = draw.generate_images(
-            pipe=pipe,
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-        )
-
-    print("[INFO] finished to draw image!!!")
+    image = draw.generate_images(prompt=prompt, negative_prompt=negative_prompt)

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Action(ABC):
+class DrawingBase(ABC):
     def __init__(self) -> None:
         pass
 
