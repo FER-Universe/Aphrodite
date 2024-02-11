@@ -139,7 +139,7 @@ class Drawing(DrawingBase):
         return image
 
     def save_images(
-        self, image: PIL, prompt: str, negative_prompt: str, save_path: str = "./imgs"
+        self, image: PIL, prompt: str, negative_prompt: str, save_path
     ) -> None:
         # for Decoding: from PIL import Image; foo = Image.open(BytesIO(base64.b64decode(image_b64.split(",")[-1])))
         # save the image string encoded by base64
@@ -161,12 +161,13 @@ class Drawing(DrawingBase):
         prompt: str,
         negative_prompt: str,
         pipe: Optional[StableDiffusionXLPipeline] = None,
+        save_path: str = "./imgs",
     ) -> PIL:
         if pipe is None:
             pipe = self.get_pipe(use_lora_weights=False)
 
         image = self._generate_and_refine_image(pipe, prompt, negative_prompt)
-        self.save_images(image, prompt, negative_prompt, save_path="<your saving path>")
+        self.save_images(image, prompt, negative_prompt, save_path=save_path)
         return image
 
 
