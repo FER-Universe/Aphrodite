@@ -13,6 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 # Modified by dohee from: from apis.data.models import Dialogue, Employee
 from apis.data.models import Dialogue, DialogueUserID, Employee, UserInfo
 from configs.config import settings
+from schemas.dialogue_sch import DialogueRequestSch, DialogueResponseSch
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{settings.DB_ID}:{settings.DB_PW}@{settings.DB_ADDRESS}/{settings.DB_NAME}"
 
@@ -28,13 +29,14 @@ def connect_db():
     return connection
 
 
-def add_message_to_database(message: str):
+def add_message_to_database(message: str, index: int):
     connection = connect_db()
     with Session(connection) as session:
         session.add(
             Dialogue(
                 session_id=uuid.uuid4(),
                 dialogue=message,
+                dialogue_index=index,
                 current_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             )
         )
@@ -88,14 +90,14 @@ def query_info_to_database(table_name: str, filter: Optional[dict] = None):
     return results
 
 
-def add_message_to_database_with_user_id(message: str, user_id: int):
+def add_message_to_database_with_user_id(req: DialogueRequestSch):
     connection = connect_db()
     with Session(connection) as session:
         session.add(
             DialogueUserID(
-                user_id=user_id,
+                user_id=req.user_id,
                 session_id=uuid.uuid4(),
-                dialogue=message,
+                dialogue=req.message,
                 current_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             )
         )
