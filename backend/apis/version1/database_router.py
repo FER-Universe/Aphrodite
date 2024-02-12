@@ -14,7 +14,7 @@ from apis.data.database import (
     query_info_to_database,
 )
 from apis.data.models import Employee
-from schemas.dialogue_sch import DialogueRequestSch, DialogueResponseSch
+from schemas.dialogue_sch import DialogueRequestSch
 
 router = APIRouter(
     prefix="/api/database",
