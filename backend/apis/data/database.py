@@ -13,7 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 # Modified by dohee from: from apis.data.models import Dialogue, Employee
 from apis.data.models import Dialogue, DialogueUserID, Employee, UserInfo
 from configs.config import settings
-from schemas.dialogue_sch import DialogueRequestSch, DialogueResponseSch
+from schemas.dialogue_sch import DialogueRequestSch
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{settings.DB_ID}:{settings.DB_PW}@{settings.DB_ADDRESS}/{settings.DB_NAME}"
 
