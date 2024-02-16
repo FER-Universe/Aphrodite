@@ -27,7 +27,8 @@ def main():
                 {
                     "role": "🤖",
                     "content": response
-                    + f"(지금 기분: VA; ({emotion_va}), LABEL: {emotion_dis}",
+                    # + f"(지금 기분: VA; ({emotion_va}), LABEL: {emotion_dis}",
+                    + f" (LABEL: {emotion_dis})",
                 }
             )
 
