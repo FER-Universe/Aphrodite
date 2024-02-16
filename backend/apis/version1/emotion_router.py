@@ -57,9 +57,12 @@ def map_discrete_emotion_from_va(valence: float, arousal: float):
         emotion class(str): one of ["Happy", "Sad", "Neutral", "Angry", "Peaceful"]
     """
     result = ""
-    if torch.norm(torch.FloatTensor([valence, arousal])) <= 0.4:
+    emotion_strength = torch.norm(torch.FloatTensor([valence, arousal]))
+    if emotion_strength <= 0.15:
         result = "Neutral"
         return result
+    elif emotion_strength > 0.15 and emotion_strength < 0.3:
+        result = "Slightly "
     elif torch.norm(torch.FloatTensor([valence, arousal])) >= 0.7:
         result = "Very "
 
@@ -122,9 +125,9 @@ async def translate_by_gpt_router(req: GptRequestSch):
 
     latent_feature = encoder(foo)
     va_output = header(regressor(latent_feature))
-    val, aro = va_output[0, 0].item(), va_output[0, 1].item()
-    emotion_va = str(val) + "," + str(aro)
-    emotion_dis = map_discrete_emotion_from_va(val, aro)
+    valence, arousal = va_output[0, 0].item(), va_output[0, 1].item()
+    emotion_va = str(round(valence, 4)) + "," + str(round(arousal, 4))
+    emotion_dis = map_discrete_emotion_from_va(valence, arousal)
     print("\n\nemotion_va: ", emotion_va)
     print("\n\nemotion_dis: ", emotion_dis)
     print("\n\nopenai result: ", openai_result)
@@ -168,7 +171,7 @@ async def chat_with_openai(req: GptRequestSch):
             "messages": [
                 {
                     "role": "user",
-                    "content": f"친절한 심리상담가로서 아래 사용자의 말에 알맞는 자연스러운 대화를 진행하세요.\n\n{req.title_nm}",
+                    "content": f"As a friendly psychotherapist, respond in a natural way to the user's words below.\n\n{req.title_nm}",
                 }
             ],
             "temperature": 0.7,
