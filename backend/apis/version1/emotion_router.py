@@ -7,14 +7,13 @@ import clip
 import openai
 import requests
 import torch
+from deep_translator import GoogleTranslator
 from fastapi import APIRouter
 from PIL import Image
 
 from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
 from utils.fer_util import nn_output
-
-from deep_translator import GoogleTranslator
 
 translator = GoogleTranslator(source="ko", target="en")
 
@@ -63,7 +62,7 @@ def map_discrete_emotion_from_va(valence: float, arousal: float):
         return result
     elif emotion_strength > 0.15 and emotion_strength < 0.3:
         result = "Slightly "
-    elif torch.norm(torch.FloatTensor([valence, arousal])) >= 0.7:
+    elif emotion_strength >= 0.7:
         result = "Very "
 
     if valence >= 0 and arousal >= 0:
