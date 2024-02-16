@@ -7,6 +7,7 @@ from apis.version1 import (
     database_router,
     openai_router,
     stt_router,
+    emotion_router,
 )
 
 app = FastAPI()
@@ -23,8 +24,7 @@ app.include_router(database_router.router)
 app.include_router(openai_router.router)
 app.include_router(stt_router.router)
 app.include_router(clip_matching_router.router)
-
-
+app.include_router(emotion_router.router)
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",

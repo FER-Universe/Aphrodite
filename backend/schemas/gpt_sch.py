@@ -15,7 +15,8 @@ class GptRequestSch(BaseModel):
 
 class GptResponseSch(BaseModel):
     openai_msg_ctt: str
-    emotion: str
+    emotion_va: str
+    emotion_dis: str
 
     class Config:
         orm_mode = True
@@ -23,6 +24,7 @@ class GptResponseSch(BaseModel):
             "example": {
                 "openai_msg_ctt": "openai 메시지 내용 입니다",
                 "emotion": "default 감정 상태 입니다",
+                "emotion_dis": "이산 감정 클래스에 기반한 감정 상태 입니다.",
             }
         }
 

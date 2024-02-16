@@ -10,11 +10,13 @@ import torch.nn.functional as F
 import pretrainedmodels
 import pretrainedmodels.utils as utils
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 model_name = "alexnet"  # 'bninception'
 # resnext = pretrainedmodels.__dict__[model_name](num_classes=1000, pretrained='imagenet').cuda()
 alexnet = pretrainedmodels.__dict__[model_name](
     num_classes=1000, pretrained="imagenet"
-).cuda()
+).to(device)
 
 
 def _encoder2():
@@ -29,10 +31,10 @@ def _header():
     return Task_Header(64, 2)
 
 
-def nn_output():
-    encoder2 = _encoder2().cuda()
-    regressor = _regressor().cuda()
-    task_header = _header().cuda()
+def nn_output():  # remove cuda
+    encoder2 = _encoder2().to(device)
+    regressor = _regressor().to(device)
+    task_header = _header().to(device)
     return encoder2, regressor, task_header
 
 

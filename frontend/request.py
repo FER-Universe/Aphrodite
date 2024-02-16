@@ -4,12 +4,15 @@ from typing import List, Optional
 
 import requests
 
+import os, sys
+
+sys.path.append(
+    os.path.abspath(os.path.join("backend", ".."))
+)  # 이게 먼저 선언이 안되면 아래 모듈 import 가 안됨
+
 from backend.configs.config import settings
 
 if settings.IS_DEFAULT_PATH:
-    import os
-    import sys
-
     sys.path.append(os.path.abspath(os.path.join("backend", "..")))
 
 
@@ -38,10 +41,8 @@ def request_writer_api(prompt: Optional[str] = None):
     if prompt == "hello":
         prefix = "http://" if settings.IS_PREFIX else ""
         api_url = f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.BASIC_API}".strip()
-        return (
-            ast.literal_eval(requests.get(api_url).text)["message"],
-            "",
-        )
+        print(api_url)
+        return (ast.literal_eval(requests.get(api_url).text)["message"], "", "")
     else:
         session_request = {"title_nm": prompt}
         prefix = "http://" if settings.IS_PREFIX else ""
@@ -51,10 +52,11 @@ def request_writer_api(prompt: Optional[str] = None):
             api_url = (
                 f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.ADVANCED_API}"
             ).strip()
+        print(api_url)
         result = ast.literal_eval(requests.post(api_url, json=session_request).text)
         response = result["openai_msg_ctt"]
         if settings.IS_EMOTION:
-            emotion = result["emotion"]
+            emotion_va, emotion_dis = result["emotion_va"], result["emotion_dis"]
         else:
-            emotion = ""
-        return response, emotion
+            emotion_va, emotion_dis = "", ""
+        return response, emotion_va, emotion_dis
