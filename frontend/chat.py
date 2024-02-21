@@ -14,8 +14,10 @@ def main(role):
         st.session_state.session = 1
         st.session_state.messages = []
 
-    if prompt := st.chat_input("입력 프롬프트"):
-        response, emotion_va, emotion_dis = request_writer_api(prompt, role)
+    col1, col2 = st.columns(2)
+
+    if prompt := st.chat_input("Input your message."):
+        response, va_emotion, discrete_emotion = request_writer_api(prompt, role)
 
         with st.chat_message("ai", avatar="🤖"):
             st.session_state.messages.append(
@@ -28,13 +30,29 @@ def main(role):
                 {
                     "role": "🤖",
                     "content": response
-                    + f"(지금 기분: VA; ({emotion_va}), LABEL: {emotion_dis}",
+                    # + f"(지금 기분: VA; ({va_emotion}), LABEL: {discrete_emotion}",
+                    + f" (EMOTION LABEL: {discrete_emotion})",
                 }
             )
 
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        with col1:
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+
+        with col2:
+            st.header(discrete_emotion)
+
+            if "Happy" in discrete_emotion:
+                st.image("./backend/assets/happy.jpg")
+            elif "Peaceful" in discrete_emotion:
+                st.image("./assets/happy.png")
+            elif "Angry" in discrete_emotion:
+                st.image("./assets/angry.png")
+            elif "Sad" in discrete_emotion:
+                st.image("./assets/sad.png")
+            elif "Neutral" in discrete_emotion:
+                st.image("./assets/neutral.png")
 
 
 if __name__ == "__main__":
