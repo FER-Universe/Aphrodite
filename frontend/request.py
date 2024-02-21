@@ -37,14 +37,14 @@ def request_clip_matching_api(converted_text: str):
     return json.loads(requests.post(api_url, json=data).text)["top_1_idx"]
 
 
-def request_writer_api(prompt: Optional[str] = None):
+def request_writer_api(prompt: Optional[str] = None, role: str = None):
     if prompt == "hello":
         prefix = "http://" if settings.IS_PREFIX else ""
         api_url = f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.BASIC_API}".strip()
         print(api_url)
         return (ast.literal_eval(requests.get(api_url).text)["message"], "", "")
     else:
-        session_request = {"title_nm": prompt}
+        session_request = {"title_nm": prompt, "role": role}
         prefix = "http://" if settings.IS_PREFIX else ""
         if settings.IS_EMOTION:
             api_url = f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.EMOTION_API}".strip()

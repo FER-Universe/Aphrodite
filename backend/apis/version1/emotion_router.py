@@ -170,7 +170,7 @@ async def chat_with_openai(req: GptRequestSch):
             "messages": [
                 {
                     "role": "user",
-                    "content": f"As a friendly psychotherapist, respond in a natural way to the user's words below.\n\n{req.title_nm}",
+                    "content": f"As a friendly {req.role}, respond in a natural way to the user's words below.\n\n{req.title_nm}",
                 }
             ],
             "temperature": 0.7,

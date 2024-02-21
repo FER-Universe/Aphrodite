@@ -3,12 +3,14 @@ from pydantic import BaseModel
 
 class GptRequestSch(BaseModel):
     title_nm: str
+    role: str = "psychotherapist"
 
     class Config:
         orm_mode = True
         schema_extra = {
             "example": {
-                "title_nm": "Base Tesla Model 3 Inventory has $2,410 discount and now Qualifies for $7,500 Tax Credit"
+                "title_nm": "Yesterday, my dog was dead.",
+                "role": "psychotherapist",
             }
         }
 
