@@ -14,70 +14,16 @@ from PIL import Image
 
 from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
-from utils.fer_util import nn_output
+from utils.fer_util import (
+    map_discrete_emotion_from_va,
+    nn_output,
+    normalize_feature,
+    set_models,
+)
 
 logger = logging.getLogger(__name__)
 
 translator = GoogleTranslator(source="ko", target="en")
-
-
-def normalize_feature(input_tensor: torch.Tensor):
-    return input_tensor / input_tensor.norm(dim=-1, keepdim=True)
-
-
-def set_models(device: str):
-    encoder, regressor, header = nn_output()
-
-    encoder.load_state_dict(
-        torch.load("backend/weights/enc2.t7", map_location=torch.device(device)),
-        strict=False,
-    )
-    regressor.load_state_dict(
-        torch.load("backend/weights/reg2.t7", map_location=torch.device(device)),
-        strict=False,
-    )
-    header.load_state_dict(
-        torch.load("backend/weights/header2.t7", map_location=torch.device(device)),
-        strict=False,
-    )
-
-    encoder.eval()
-    regressor.eval()
-    header.eval()
-    return encoder, regressor, header
-
-
-def map_discrete_emotion_from_va(valence: float, arousal: float):
-    """
-    Map emotions from continuous(va-domain) to discrete label(Happy, Sad, Neutral, Angry)
-    The mapping is based on quadrants, with a distance of 0.3 or less defined as "Neutral".
-    Args:
-        valence(float): The degree to which an emotion is positive or negative, [-1,1]
-        arousal(float): Level of emotional excitement, [-1,1]
-
-    Output:
-        emotion class(str): one of ["Happy", "Sad", "Neutral", "Angry", "Peaceful"]
-    """
-    result = ""
-    emotion_strength = torch.norm(torch.FloatTensor([valence, arousal]))
-    if emotion_strength <= 0.15:
-        result = "Neutral"
-        return result
-    elif emotion_strength > 0.15 and emotion_strength < 0.3:
-        result = "Slightly "
-    elif emotion_strength >= 0.7:
-        result = "Very "
-
-    if valence >= 0 and arousal >= 0:
-        result += "Happy"
-    elif valence >= 0 and arousal < 0:
-        result += "Peaceful"
-    elif valence < 0 and arousal >= 0:
-        result += "Angry"
-    else:
-        result += "Sad"
-
-    return result
 
 
 sem = Semaphore(3)
@@ -88,20 +34,20 @@ router = APIRouter(prefix="/api/openai")
 @router.post("/response_with_emotion", response_model=GptResponseSch)
 async def translate_by_gpt_router(req: GptRequestSch):
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
-    # translation: google translator로 변경 / openai_result -> trans_result
-    # openai_result = await translate_by_openai(req)
-    logging.info("raw input: " + req.title_nm)
+    clip_model_type: str = "ViT-B/32"
+    img_path_for_glob: str = "./assets/emotion_templates/*"
 
     openai_result = await chat_with_openai(req)
+
     trans_result = translator.translate(text=req.title_nm)
+    # openai_result = await translate_by_openai(req)
+
     logger.info("openai result: " + openai_result)
     logger.info("translated result: " + trans_result)
 
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
-    model, preprocess = clip.load("ViT-B/32", device=device)
+    face_image_path = glob.glob(img_path_for_glob)
+    model, preprocess = clip.load(clip_model_type, device=device)
     encoder, regressor, header = set_models(device)
-
-    face_image_path = glob.glob("./backend/assets/*")
 
     try:
         text = clip.tokenize([trans_result]).to(device)
