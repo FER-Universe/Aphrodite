@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torch.autograd import Variable
-from torch.autograd import grad as torch_grad
-import torch.nn.functional as F
-
 import pretrainedmodels
 import pretrainedmodels.utils as utils
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.autograd import Variable
+from torch.autograd import grad as torch_grad
+from torch.optim import lr_scheduler
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -17,6 +16,65 @@ model_name = "alexnet"  # 'bninception'
 alexnet = pretrainedmodels.__dict__[model_name](
     num_classes=1000, pretrained="imagenet"
 ).to(device)
+
+
+def set_models(device: str):
+    encoder, regressor, header = nn_output()
+
+    encoder.load_state_dict(
+        torch.load("backend/weights/enc2.t7", map_location=torch.device(device)),
+        strict=False,
+    )
+    regressor.load_state_dict(
+        torch.load("backend/weights/reg2.t7", map_location=torch.device(device)),
+        strict=False,
+    )
+    header.load_state_dict(
+        torch.load("backend/weights/header2.t7", map_location=torch.device(device)),
+        strict=False,
+    )
+
+    encoder.eval()
+    regressor.eval()
+    header.eval()
+    return encoder, regressor, header
+
+
+def normalize_feature(input_tensor: torch.Tensor) -> torch.Tensor:
+    return input_tensor / input_tensor.norm(dim=-1, keepdim=True)
+
+
+def map_discrete_emotion_from_va(valence: float, arousal: float) -> str:
+    """
+    Map emotions from continuous(va-domain) to discrete label(Happy, Sad, Neutral, Angry)
+    The mapping is based on quadrants, with a distance of 0.3 or less defined as "Neutral".
+    Args:
+        valence(float): The degree to which an emotion is positive or negative, [-1,1]
+        arousal(float): Level of emotional excitement, [-1,1]
+
+    Output:
+        emotion class(str): one of ["Happy", "Sad", "Neutral", "Angry", "Peaceful"]
+    """
+    result = ""
+    emotion_strength = torch.norm(torch.FloatTensor([valence, arousal]))
+    if emotion_strength <= 0.15:
+        result = "Neutral"
+        return result
+    elif emotion_strength > 0.15 and emotion_strength < 0.3:
+        result = "Slightly "
+    elif emotion_strength >= 0.7:
+        result = "Very "
+
+    if valence >= 0 and arousal >= 0:
+        result += "Happy"
+    elif valence >= 0 and arousal < 0:
+        result += "Peaceful"
+    elif valence < 0 and arousal >= 0:
+        result += "Angry"
+    else:
+        result += "Sad"
+
+    return result
 
 
 def _encoder2():

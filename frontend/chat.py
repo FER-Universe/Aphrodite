@@ -1,6 +1,14 @@
-import streamlit as st
-from request import request_writer_api
 import argparse
+
+import streamlit as st
+from file import (
+    ANGRY_FILE_PATH,
+    HAPPY_FILE_PATH,
+    NEUTRAL_FILE_PATH,
+    PLEASED_FILE_PATH,
+    SAD_FILE_PATH,
+)
+from request import request_writer_api
 
 
 def show_streamlit_title(role):
@@ -29,9 +37,7 @@ def main(role):
             st.session_state.messages.append(
                 {
                     "role": "🤖",
-                    "content": response
-                    # + f"(지금 기분: VA; ({va_emotion}), LABEL: {discrete_emotion}",
-                    + f" (EMOTION LABEL: {discrete_emotion})",
+                    "content": response,
                 }
             )
 
@@ -44,15 +50,15 @@ def main(role):
             st.header(discrete_emotion)
 
             if "Happy" in discrete_emotion:
-                st.image("./backend/assets/happy.jpg")
+                st.image(HAPPY_FILE_PATH)
             elif "Peaceful" in discrete_emotion:
-                st.image("./assets/happy.png")
+                st.image(PLEASED_FILE_PATH)
             elif "Angry" in discrete_emotion:
-                st.image("./assets/angry.png")
+                st.image(ANGRY_FILE_PATH)
             elif "Sad" in discrete_emotion:
-                st.image("./assets/sad.png")
+                st.image(SAD_FILE_PATH)
             elif "Neutral" in discrete_emotion:
-                st.image("./assets/neutral.png")
+                st.image(NEUTRAL_FILE_PATH)
 
 
 if __name__ == "__main__":
