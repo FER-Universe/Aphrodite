@@ -1,12 +1,15 @@
 """reference: https://github.com/aiwaves-cn/agents"""
+
+import logging
 import os
 import time
 from abc import abstractclassmethod
 
 import openai
-
 from aphrodite.memory import Memory
 from aphrodite.util import save_logs
+
+logger = logging.getLogger(__name__)
 
 
 class LLM:
@@ -120,14 +123,14 @@ class OpenAILLM(LLM):
                     )
                 break
             except Exception as e:
-                print(e)
+                logger.info(e)
                 if "maximum context length is" in str(e):
                     if len(messages) > 1:
                         del messages[1]
                     else:
                         assert False, "exceed max length"
                 else:
-                    print(f"Please wait {WAIT_TIME} seconds and resend later ...")
+                    logger.info(f"Please wait {WAIT_TIME} seconds and resend later ...")
                     time.sleep(WAIT_TIME)
 
         if functions:

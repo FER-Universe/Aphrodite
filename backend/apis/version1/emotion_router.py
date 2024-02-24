@@ -1,5 +1,6 @@
 import glob
 import json
+import logging
 import time
 from threading import Semaphore
 
@@ -14,6 +15,8 @@ from PIL import Image
 from configs.config import settings
 from schemas.gpt_sch import GptRequestSch, GptResponseSch
 from utils.fer_util import nn_output
+
+logger = logging.getLogger(__name__)
 
 translator = GoogleTranslator(source="ko", target="en")
 
@@ -87,13 +90,13 @@ async def translate_by_gpt_router(req: GptRequestSch):
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     # translation: google translator로 변경 / openai_result -> trans_result
     # openai_result = await translate_by_openai(req)
-    print("raw input: " + req.title_nm)
+    logging.info("raw input: " + req.title_nm)
 
     openai_result = await chat_with_openai(req)
-    print("openai result: " + openai_result)
     trans_result = translator.translate(text=req.title_nm)
-    print("translated result: " + trans_result)
-    # load models
+    logger.info("openai result: " + openai_result)
+    logger.info("translated result: " + trans_result)
+
     # device = "cuda" if torch.cuda.is_available() else "cpu"
     model, preprocess = clip.load("ViT-B/32", device=device)
     encoder, regressor, header = set_models(device)
@@ -119,7 +122,7 @@ async def translate_by_gpt_router(req: GptRequestSch):
     similarity = (100.0 * image_features @ text_feature.T).softmax(dim=0)
 
     top_1_idx = torch.argmax(similarity)
-    print("selected: " + face_image_path[top_1_idx])
+    logger.info("selected: " + face_image_path[top_1_idx])
     foo = preprocess(Image.open(face_image_path[top_1_idx])).unsqueeze(0).to(device)
 
     latent_feature = encoder(foo)
@@ -127,9 +130,9 @@ async def translate_by_gpt_router(req: GptRequestSch):
     valence, arousal = va_output[0, 0].item(), va_output[0, 1].item()
     emotion_va = str(round(valence, 4)) + "," + str(round(arousal, 4))
     emotion_dis = map_discrete_emotion_from_va(valence, arousal)
-    print("\n\nemotion_va: ", emotion_va)
-    print("\n\nemotion_dis: ", emotion_dis)
-    print("\n\nopenai result: ", openai_result)
+    logger.info("emotion_va: ", emotion_va)
+    logger.info("emotion_dis: ", emotion_dis)
+    logger.info("openai result: ", openai_result)
 
     return {
         "openai_msg_ctt": openai_result,
@@ -157,7 +160,7 @@ async def translate_by_openai(req: GptRequestSch):
             json=data,
         )
         output = json.loads(response.text)
-        print("output: ", output)
+        logger.info("output: ", output)
         openai_result = output["choices"][0]["message"]["content"]
 
     return openai_result
@@ -182,7 +185,7 @@ async def chat_with_openai(req: GptRequestSch):
             json=data,
         )
         output = json.loads(response.text)
-        print("output: ", output)
+        logger.info("output: ", output)
         openai_result = output["choices"][0]["message"]["content"]
 
     return openai_result

@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from datetime import datetime
@@ -8,6 +9,8 @@ import requests
 import speech_recognition as sr
 from fastapi import APIRouter
 from gtts import gTTS
+
+logger = logging.getLogger(__name__)
 
 
 def speak(text):
@@ -43,7 +46,7 @@ async def convert_string_to_text(is_repeat: bool = False) -> Dict[str, str]:
 
     while True:
         text = get_audio()
-        print(text)
+        logger.info(text)
 
         if is_repeat:
             current_fp = os.getcwd()
