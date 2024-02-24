@@ -1,19 +1,21 @@
 import ast
 import json
+import logging
+import os
+import sys
 from typing import List, Optional
 
 import requests
 
-import os, sys
-
-sys.path.append(
-    os.path.abspath(os.path.join("backend", ".."))
-)  # 이게 먼저 선언이 안되면 아래 모듈 import 가 안됨
+sys.path.append(os.path.abspath(os.path.join("backend", "..")))
 
 from backend.configs.config import settings
 
 if settings.IS_DEFAULT_PATH:
     sys.path.append(os.path.abspath(os.path.join("backend", "..")))
+
+
+logger = logging.getLogger(__name__)
 
 
 def request_touch_api():
@@ -30,7 +32,7 @@ def request_stt_api():
 
 def request_clip_matching_api(converted_text: str):
     prefix = "http://" if settings.IS_PREFIX else ""
-    print("converted_text: ", converted_text)
+    logger.info("converted_text: ", converted_text)
 
     data = {"converted_text": converted_text}
     api_url = f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.CLIP_MATCHING_API}".strip()
@@ -41,7 +43,7 @@ def request_writer_api(prompt: Optional[str] = None, role: str = None):
     if prompt == "hello":
         prefix = "http://" if settings.IS_PREFIX else ""
         api_url = f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.BASIC_API}".strip()
-        print(api_url)
+        logger.info(api_url)
         return (ast.literal_eval(requests.get(api_url).text)["message"], "", "")
     else:
         session_request = {"title_nm": prompt, "role": role}
@@ -52,7 +54,7 @@ def request_writer_api(prompt: Optional[str] = None, role: str = None):
             api_url = (
                 f"{prefix}{settings.IP_ADDRESS}:{settings.PORT}/{settings.ADVANCED_API}"
             ).strip()
-        print(api_url)
+        logger.info(api_url)
         result = ast.literal_eval(requests.post(api_url, json=session_request).text)
         response = result["openai_msg_ctt"]
         if settings.IS_EMOTION:

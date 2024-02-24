@@ -1,8 +1,11 @@
 import glob
+import logging
 
 import streamlit as st
 from PIL import Image
 from request import request_clip_matching_api, request_stt_api, request_writer_api
+
+logger = logging.getLogger(__name__)
 
 
 def show_streamlit_title():
@@ -20,13 +23,13 @@ def main():
     if st.button("Record Your Voice for communicate Aphrodite..."):
         st.write("You touched button...")
         response = request_stt_api()
-        print("response: ", response)
+        logger.info("response: ", response)
 
     if st.button("show image"):
         with open("converted_text.txt", "r") as f:
             converted_text = f.read()
         top_1_idx = request_clip_matching_api(converted_text)
-        print("top_1_idx: ", top_1_idx)
+        logger.info("top_1_idx: ", top_1_idx)
         # top_1_idx = "1"
 
         face_image_path = glob.glob(

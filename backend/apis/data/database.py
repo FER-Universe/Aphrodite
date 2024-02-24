@@ -1,5 +1,6 @@
 import contextlib
 import json
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Optional
@@ -15,6 +16,7 @@ from apis.data.models import Dialogue, DialogueUserID, Employee, UserInfo
 from configs.config import settings
 from schemas.dialogue_sch import DialogueRequestSch
 
+logger = logging.getLogger(__name__)
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{settings.DB_ID}:{settings.DB_PW}@{settings.DB_ADDRESS}/{settings.DB_NAME}"
 
 Base = declarative_base()
@@ -25,7 +27,7 @@ def connect_db():
     try:
         connection = engine.connect()
     except ConnectionError as e:
-        print(f"{e}")
+        logger.info(f"{e}")
     return connection
 
 
@@ -86,7 +88,7 @@ def query_info_to_database(table_name: str, filter: Optional[dict] = None):
                     .all()
                 )
         except NoResultFound as e:
-            print(e)
+            logger.info(e)
     return results
 
 
