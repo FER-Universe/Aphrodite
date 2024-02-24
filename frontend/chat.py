@@ -1,13 +1,14 @@
 import streamlit as st
 from request import request_writer_api
+import argparse
 
 
-def show_streamlit_title():
-    st.title("💬 Chat with your BOT")
+def show_streamlit_title(role):
+    st.title(f"💬 Chat with your {role} BOT")
 
 
-def main():
-    show_streamlit_title()
+def main(role):
+    show_streamlit_title(role)
 
     if "session" not in st.session_state:
         st.session_state.session = 1
@@ -16,7 +17,7 @@ def main():
     col1, col2 = st.columns(2)
 
     if prompt := st.chat_input("Input your message."):
-        response, va_emotion, discrete_emotion = request_writer_api(prompt)
+        response, va_emotion, discrete_emotion = request_writer_api(prompt, role)
 
         with st.chat_message("ai", avatar="🤖"):
             st.session_state.messages.append(
@@ -43,7 +44,7 @@ def main():
             st.header(discrete_emotion)
 
             if "Happy" in discrete_emotion:
-                st.image("./assets/happy.png")
+                st.image("./backend/assets/happy.jpg")
             elif "Peaceful" in discrete_emotion:
                 st.image("./assets/happy.png")
             elif "Angry" in discrete_emotion:
@@ -55,4 +56,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Chatbot")
+
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="psychotherapist",
+        help="Persona for your chatbot to talk to",
+    )
+    args = parser.parse_args()
+    main(args.mode)
