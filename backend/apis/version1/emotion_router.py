@@ -22,6 +22,15 @@ from utils.fer_util import (
 )
 
 logger = logging.getLogger(__name__)
+## Add if you want to show log messages to console
+"""logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+
+logger.addHandler(console_handler)"""
+
 
 translator = GoogleTranslator(source="ko", target="en")
 
@@ -76,9 +85,9 @@ async def translate_by_gpt_router(req: GptRequestSch):
     valence, arousal = va_output[0, 0].item(), va_output[0, 1].item()
     emotion_va = str(round(valence, 4)) + "," + str(round(arousal, 4))
     emotion_dis = map_discrete_emotion_from_va(valence, arousal)
-    logger.info("emotion_va: ", emotion_va)
-    logger.info("emotion_dis: ", emotion_dis)
-    logger.info("openai result: ", openai_result)
+    logger.info("emotion_va: %s", emotion_va)
+    logger.info("emotion_dis: %s", emotion_dis)
+    logger.info("openai result: %s", openai_result)
 
     return {
         "openai_msg_ctt": openai_result,
