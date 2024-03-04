@@ -20,6 +20,7 @@ from utils.fer_util import (
     normalize_feature,
     set_models,
 )
+from apis.version1.emotion_prompt_settings import PROMPT_MAP
 
 logger = logging.getLogger(__name__)
 ## Add if you want to show log messages to console
@@ -122,13 +123,19 @@ async def translate_by_openai(req: GptRequestSch):
 
 
 async def chat_with_openai(req: GptRequestSch):
+    current_time = time.ctime(time.time())
     with sem:
         data = {
             "model": "gpt-3.5-turbo",
             "messages": [
                 {
                     "role": "user",
-                    "content": f"As a friendly {req.role}, respond in a natural way to the user's words below.\n\n{req.title_nm}",
+                    "content": PROMPT_MAP[req.role].format(
+                        current_time=current_time,
+                        ai="Danny",
+                        user="Jane",
+                        content=req.title_nm,
+                    ),
                 }
             ],
             "temperature": 0.7,
